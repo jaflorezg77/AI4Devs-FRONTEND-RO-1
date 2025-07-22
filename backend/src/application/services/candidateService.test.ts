@@ -9,12 +9,23 @@ jest.mock('@prisma/client', () => {
       findFirst: jest.fn(),
       update: jest.fn(),
     },
+    interviewStep: {
+      findFirst: jest.fn(),
+    },
   };
   return { PrismaClient: jest.fn(() => mockPrisma) };
 });
 
 describe('updateCandidateStage', () => {
   it('should update the candidate stage and return the updated application', async () => {
+    const mockInterviewStep = {
+      id: 2,
+      interviewFlowId: 1,
+      interviewTypeId: 1,
+      name: 'Technical Interview',
+      orderIndex: 2,
+    };
+
     const mockApplication = {
       id: 1,
       positionId: 1,
@@ -22,18 +33,25 @@ describe('updateCandidateStage', () => {
       currentInterviewStep: 1,
       applicationDate: new Date(),
       notes: null,
+      save: jest.fn().mockResolvedValue(true),
     };
 
-    jest.spyOn(prisma.application, 'findFirst').mockResolvedValue(mockApplication);
-    jest.spyOn(prisma.application, 'update').mockResolvedValue({
-      ...mockApplication,
-      currentInterviewStep: 2,
-    });
-
-    const result = await updateCandidateStage(1, 1, 2);
-    expect(result).toEqual(expect.objectContaining({
-      ...mockApplication,
-      currentInterviewStep: 2,
+    // Mock para encontrar el interview step por nombre
+    jest.spyOn(prisma.interviewStep, 'findFirst').mockResolvedValue(mockInterviewStep);
+    
+    // Mock para la función estática del modelo Application
+    const mockFindOneByPositionCandidateId = jest.fn().mockResolvedValue(mockApplication);
+    
+    // Necesitamos mockear la función estática del modelo Application
+    jest.doMock('../../domain/models/Application', () => ({
+      Application: {
+        findOneByPositionCandidateId: mockFindOneByPositionCandidateId,
+      },
     }));
+
+    const result = await updateCandidateStage(1, 1, 'Technical Interview');
+    
+    expect(mockApplication.currentInterviewStep).toBe(2);
+    expect(mockApplication.save).toHaveBeenCalled();
   });
 });

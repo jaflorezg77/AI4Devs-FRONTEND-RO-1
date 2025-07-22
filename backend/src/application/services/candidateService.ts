@@ -4,6 +4,9 @@ import { Education } from '../../domain/models/Education';
 import { WorkExperience } from '../../domain/models/WorkExperience';
 import { Resume } from '../../domain/models/Resume';
 import { Application } from '../../domain/models/Application';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export const addCandidate = async (candidateData: any) => {
     try {
@@ -65,15 +68,25 @@ export const findCandidateById = async (id: number): Promise<Candidate | null> =
     }
 };
 
-export const updateCandidateStage = async (id: number, applicationIdNumber: number, currentInterviewStep: number) => {
+export const updateCandidateStage = async (candidateId: number, applicationId: number, newPhaseName: string) => {
     try {
-        const application = await Application.findOneByPositionCandidateId(applicationIdNumber, id);
+        // Buscar el paso de entrevista por su nombre
+        const interviewStep = await prisma.interviewStep.findFirst({
+            where: { name: newPhaseName }
+        });
+
+        if (!interviewStep) {
+            throw new Error(`Interview step with name "${newPhaseName}" not found.`);
+        }
+
+        // Buscar la aplicación por applicationId y candidateId
+        const application = await Application.findOneByPositionCandidateId(applicationId, candidateId);
         if (!application) {
             throw new Error('Application not found');
         }
 
         // Actualizar solo la etapa de la entrevista actual de la aplicación específica
-        application.currentInterviewStep = currentInterviewStep;
+        application.currentInterviewStep = interviewStep.id; // Usar el ID del paso de entrevista
 
         // Guardar la aplicación actualizada
         await application.save();

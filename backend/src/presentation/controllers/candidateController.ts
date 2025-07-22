@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { addCandidate, findCandidateById, updateCandidateStage } from '../../application/services/candidateService';
+import { Application } from '../../domain/models/Application';
 
 export const addCandidateController = async (req: Request, res: Response) => {
     try {
@@ -33,22 +34,32 @@ export const getCandidateById = async (req: Request, res: Response) => {
 
 export const updateCandidateStageController = async (req: Request, res: Response) => {
     try {
-        const id = parseInt(req.params.id);
-        const { applicationId, currentInterviewStep } = req.body;
+        const candidateId = parseInt(req.params.id); // Este es el ID del candidato
+        const { applicationId, currentInterviewStep } = req.body; // Recibimos applicationId y currentInterviewStep (nombre de la fase)
+
+        if (isNaN(candidateId)) {
+            return res.status(400).json({ error: 'Invalid candidate ID format' });
+        }
+
         const applicationIdNumber = parseInt(applicationId);
         if (isNaN(applicationIdNumber)) {
-            return res.status(400).json({ error: 'Invalid position ID format' });
+            return res.status(400).json({ error: 'Invalid application ID format' });
         }
-        const currentInterviewStepNumber = parseInt(currentInterviewStep);
-        if (isNaN(currentInterviewStepNumber)) {
+
+        // currentInterviewStep ahora es el nombre de la fase (string), no el ID
+        if (!currentInterviewStep || typeof currentInterviewStep !== 'string') {
             return res.status(400).json({ error: 'Invalid currentInterviewStep format' });
         }
-        const updatedCandidate = await updateCandidateStage(id, applicationIdNumber, currentInterviewStepNumber);
-        res.status(200).json({ message: 'Candidate stage updated successfully', data: updatedCandidate });
+
+        const updatedApplication = await updateCandidateStage(candidateId, applicationIdNumber, currentInterviewStep);
+        res.status(200).json({ message: 'Candidate stage updated successfully', data: updatedApplication });
+
     } catch (error: unknown) {
         if (error instanceof Error) {
-            if (error.message === 'Error: Application not found') {
+            if (error.message.includes('Application not found')) {
                 res.status(404).json({ message: 'Application not found', error: error.message });
+            } else if (error.message.includes('Interview step with name')) {
+                res.status(400).json({ message: 'Invalid interview step name', error: error.message });
             } else {
                 res.status(400).json({ message: 'Error updating candidate stage', error: error.message });
             }
@@ -57,4 +68,5 @@ export const updateCandidateStageController = async (req: Request, res: Response
         }
     }
 };
+
 export { addCandidate };

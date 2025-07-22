@@ -21,4 +21,7 @@ router.get('/:id', getCandidateById);
 
 router.put('/:id', updateCandidateStageController);
 
+// Nueva ruta para el kanban - usa el mismo controlador pero con formato diferente
+router.patch('/:id/stage', updateCandidateStageController);
+
 export default router;

@@ -36,3 +36,167 @@
     transform: rotate(360deg);
   }
 }
+
+/* Kanban responsive */
+.kanban-board-columns {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row;
+}
+
+.kanban-column {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 220px;
+  flex: 1 1 0;
+}
+
+.kanban-card {
+  background: #fff;
+  border: 1px solid #212529; /* Contraste alto */
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  color: #212529;
+  font-size: 1rem; /* 16px */
+  outline: none;
+}
+.kanban-card:focus {
+  box-shadow: 0 0 0 2px #0d6efd;
+  border-color: #0d6efd;
+}
+
+@media (max-width: 600px) {
+  .kanban-board-columns {
+    flex-direction: column;
+  }
+  .kanban-column {
+    width: 100%;
+    min-width: unset;
+    margin-bottom: 1rem;
+  }
+  .kanban-card {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Estilos generales */
+.container-fluid {
+  padding: 2rem;
+}
+
+/* Estilos del Kanban */
+.kanban-column {
+  min-height: 500px;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.kanban-column.dragging-over {
+  background-color: #e9ecef;
+  border: 2px dashed #007bff;
+}
+
+.kanban-cards {
+  min-height: 100px;
+  transition: background-color 0.2s ease;
+}
+
+.kanban-cards.dragging-over {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Estilos de las tarjetas */
+.card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card.dragging {
+  cursor: grabbing;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+  background-color: #fff;
+  transform: rotate(2deg);
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.card-title {
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+/* Estilos de puntuación */
+.score-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 2px;
+}
+
+/* Estilos para estados de carga y error */
+.loading-spinner {
+  margin: 2rem auto;
+}
+
+.error-message {
+  margin: 2rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Estilos para el encabezado */
+.position-header {
+  margin-bottom: 2rem;
+}
+
+.position-title {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.position-company {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Estilos para el botón de volver */
+.back-button {
+  margin: 1rem;
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+  .kanban-column {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Estilos específicos para drag and drop */
+[data-rbd-draggable-context-id] {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+[data-rbd-drag-handle-draggable-id] {
+  cursor: move !important;
+  cursor: grab !important;
+}

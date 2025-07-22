@@ -1,20 +1,36 @@
-import React from 'react';
-import { Card, Container, Row, Col, Form, Button } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Card, Container, Row, Col, Form, Button, Spinner, Alert } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { getPositions } from '../services/positionService';
 
 type Position = {
+    id: string;
     title: string;
     manager: string;
     deadline: string;
     status: 'Abierto' | 'Contratado' | 'Cerrado' | 'Borrador';
 };
 
-const mockPositions: Position[] = [
-    { title: 'Senior Backend Engineer', manager: 'John Doe', deadline: '2024-12-31', status: 'Abierto' },
-    { title: 'Junior Android Engineer', manager: 'Jane Smith', deadline: '2024-11-15', status: 'Contratado' },
-    { title: 'Product Manager', manager: 'Alex Jones', deadline: '2024-07-31', status: 'Borrador' }
-];
-
 const Positions: React.FC = () => {
+    const [positions, setPositions] = useState<Position[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        getPositions()
+            .then(data => {
+                setPositions(data);
+                setLoading(false);
+            })
+            .catch(() => {
+                setError('Error al cargar las posiciones');
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div className="text-center mt-5"><Spinner animation="border" /></div>;
+    if (error) return <Alert variant="danger" className="mt-5 text-center">{error}</Alert>;
+
     return (
         <Container className="mt-5">
             <h2 className="text-center mb-4">Posiciones</h2>
@@ -44,8 +60,8 @@ const Positions: React.FC = () => {
                 </Col>
             </Row>
             <Row>
-                {mockPositions.map((position, index) => (
-                    <Col md={4} key={index} className="mb-4">
+                {positions.map((position) => (
+                    <Col md={4} key={position.id} className="mb-4">
                         <Card className="shadow-sm">
                             <Card.Body>
                                 <Card.Title>{position.title}</Card.Title>
@@ -57,7 +73,7 @@ const Positions: React.FC = () => {
                                     {position.status}
                                 </span>
                                 <div className="d-flex justify-content-between mt-3">
-                                    <Button variant="primary">Ver proceso</Button>
+                                    <Link to={`/positions/${position.id}/kanban`} className="btn btn-primary">Ver proceso</Link>
                                     <Button variant="secondary">Editar</Button>
                                 </div>
                             </Card.Body>

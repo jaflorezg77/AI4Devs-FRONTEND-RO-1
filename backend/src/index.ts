@@ -37,19 +37,20 @@ app.use(cors({
   credentials: true
 }));
 
+// Middleware para logging de requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
 // Import and use candidateRoutes
 app.use('/candidates', candidateRoutes);
 
 // Route for file uploads
 app.post('/upload', uploadFile);
 
-// Route to get candidates by position
-app.use('/position', positionRoutes);
-
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+// Route to get candidates by position - usando el plural 'positions'
+app.use('/positions', positionRoutes);
 
 const port = 3010;
 
